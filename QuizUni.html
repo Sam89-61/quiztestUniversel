@@ -1,5 +1,5 @@
 <!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
-<title>Quiz Reader</title>
+<title>Quiz</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
@@ -450,6 +450,33 @@
 
   .nav-btn:hover { border-color: var(--accent); }
 
+  .nav-btn.custom-nav {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.4rem 0.65rem;
+    color: var(--fg-muted);
+    font-size: 0.8rem;
+    white-space: nowrap;
+  }
+
+  .custom-nav input[type="number"] {
+    width: 2.8rem;
+    padding: 0.25rem 0.2rem;
+    border: 1px solid var(--border);
+    border-radius: 0.35rem;
+    background: var(--surface-alt);
+    color: var(--fg);
+    font: inherit;
+    font-weight: 700;
+    text-align: center;
+  }
+
+  .custom-nav input[type="number"]:focus {
+    outline: 2px solid var(--accent-light);
+    border-color: var(--accent);
+  }
+
   .nav-btn.primary {
     background: var(--accent);
     color: var(--accent-fg);
@@ -604,12 +631,12 @@
 
   <div class="nav-row">
     <div class="nav-group">
-      <button class="nav-btn" id="btn-prev5" title="-5 questions">⏪ -5</button>
+      <button class="nav-btn custom-nav" id="btn-prev5" title="Reculer du nombre de questions indiqué">⏪ <input type="number" id="skipR" value="5" min="1" aria-label="Nombre de questions à reculer"></button>
       <button class="nav-btn" id="btn-prev" disabled>← Préc</button>
     </div>
     <button class="nav-btn primary" id="btn-next">Suivant →</button>
     <div class="nav-group">
-      <button class="nav-btn" id="btn-next5" title="+5 questions">+5 ⏩</button>
+      <button class="nav-btn custom-nav" id="btn-next5" ><input type="number" id="skipA" value="5" min="1" aria-label="Nombre de questions à avancer"> ⏩</button>
     </div>
   </div>
 
@@ -617,6 +644,7 @@
 </div>
 
 <script>
+  
   // Ste
 (function() {
   let quiz = null;
@@ -645,6 +673,12 @@
   const $next = document.getElementById('btn-next');
   const $prev5 = document.getElementById('btn-prev5');
   const $next5 = document.getElementById('btn-next5');
+  const $skipA =document.getElementById("skipA");
+  const $skipR =document.getElementById("skipR")
+ 
+
+  
+
 
   // --- File loading ---
   $dropzone.addEventListener('click', () => $fileInput.click());
@@ -739,8 +773,9 @@
   }
 
   $prev.addEventListener('click', () => goTo(current - 1));
-  $prev5.addEventListener('click', () => goTo(current - 5));
-  $next5.addEventListener('click', () => goTo(current + 5));
+
+  $prev5.addEventListener('click', () => goTo(current - Number($skipR.value)));
+  $next5.addEventListener('click', () => goTo(current + Number($skipA.value)));
 
   $next.addEventListener('click', () => {
     if (finished) return;
