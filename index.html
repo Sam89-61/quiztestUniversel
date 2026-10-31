@@ -250,7 +250,7 @@
     border: 1px solid var(--border);
   }
 
-  .mode-btn {
+  .mode-btn, .shuffle-toggle {
     padding: 0.4rem 0.85rem;
     border: none;
     background: transparent;
@@ -262,7 +262,7 @@
     transition: background 0.2s, color 0.2s;
   }
 
-  .mode-btn.active {
+  .mode-btn.active, .shuffle-toggle.active {
     background: var(--accent);
     color: var(--accent-fg);
   }
@@ -633,6 +633,7 @@
       <button class="mode-btn active" data-mode="quiz">Quiz</button>
       <button class="mode-btn" data-mode="flashcard">Flashcards</button>
     </div>
+    <button class="shuffle-toggle active" id="shuffle-toggle" type="button" aria-pressed="true">Mélange : oui</button>
     <span class="progress-text" id="progress-text"></span>
   </div>
   <div class="progress-bar-outer"><div class="progress-bar-inner" id="progress-bar"></div></div>
@@ -660,6 +661,7 @@
   let quiz = null;
   let current = 0;
   let mode = 'quiz'; // quiz | flashcard
+  let shuffleQuestions = true;
   let answers = {};   // {qIndex: selectedOptionId}
   let revealed = {};  // {qIndex: true} - hint revealed
   let flipped = {};   // {qIndex: true} - flashcard flipped
@@ -679,6 +681,7 @@
   const $progressBar = document.getElementById('progress-bar');
   const $area = document.getElementById('question-area');
   const $results = document.getElementById('results-area');
+  const $shuffleToggle = document.getElementById('shuffle-toggle');
   const $prev = document.getElementById('btn-prev');
   const $next = document.getElementById('btn-next');
   const $prev5 = document.getElementById('btn-prev5');
@@ -743,8 +746,13 @@
       }
     }
     quiz = data;
-    shuffledQuestions = shuffleArray([...quiz.questions]);
+    shuffledQuestions = getQuestionOrder();
     startQuiz();
+  }
+
+  function getQuestionOrder() {
+    const questions = [...quiz.questions];
+    return shuffleQuestions ? shuffleArray(questions) : questions;
   }
 
   function shuffleArray(arr) {
@@ -778,6 +786,22 @@
       document.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('active', b === btn));
       render();
     });
+  });
+
+  $shuffleToggle.addEventListener('click', () => {
+    shuffleQuestions = !shuffleQuestions;
+    $shuffleToggle.classList.toggle('active', shuffleQuestions);
+    $shuffleToggle.textContent = `Mélange : ${shuffleQuestions ? 'oui' : 'non'}`;
+    $shuffleToggle.setAttribute('aria-pressed', String(shuffleQuestions));
+    shuffledQuestions = getQuestionOrder();
+    current = 0;
+    answers = {};
+    revealed = {};
+    flipped = {};
+    submitted = {};
+    finished = false;
+    $results.hidden = true;
+    render();
   });
 
   // --- Navigation ---
@@ -1009,7 +1033,7 @@
   };
 
   window.__quizRestart = function() {
-    shuffledQuestions = shuffleArray([...quiz.questions]);
+    shuffledQuestions = getQuestionOrder();
     current = 0;
     answers = {};
     revealed = {};
