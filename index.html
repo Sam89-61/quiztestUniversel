@@ -675,6 +675,10 @@
   const $next5 = document.getElementById('btn-next5');
   const $skipA =document.getElementById("skipA");
   const $skipR =document.getElementById("skipR")
+
+  [$skipA, $skipR].forEach(input => {
+    input.addEventListener('click', event => event.stopPropagation());
+  });
  
 
   
