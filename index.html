@@ -684,7 +684,7 @@
   const $prev5 = document.getElementById('btn-prev5');
   const $next5 = document.getElementById('btn-next5');
   const $skipA =document.getElementById("skipA");
-  const $skipR =document.getElementById("skipR")
+  const $skipR =document.getElementById("skipR");
 
   [$skipA, $skipR].forEach(input => {
     input.addEventListener('click', event => event.stopPropagation());
@@ -703,13 +703,15 @@
     const file = e.dataTransfer.files[0];
     if (file) loadFile(file);
   });
-  $fileInput.addEventListener('change', () => {
-    if ($fileInput.files[0]) loadFile($fileInput.files[0]);
+  $fileInput.addEventListener('change', event => {
+    const file = event.target.files[0];
+    event.target.value = '';
+    if (file) loadFile(file);
   });
 
   function loadFile(file) {
     $error.textContent = '';
-    if (!file.name.endsWith('.json')) {
+    if (!file.name.toLowerCase().endsWith('.json')) {
       $error.textContent = 'Le fichier doit être au format .json';
       return;
     }
@@ -721,6 +723,9 @@
       } catch (err) {
         $error.textContent = 'JSON invalide : ' + err.message;
       }
+    };
+    reader.onerror = () => {
+      $error.textContent = 'Impossible de lire le fichier JSON.';
     };
     reader.readAsText(file);
   }
